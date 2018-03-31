@@ -16,10 +16,10 @@ app.post('/', function(req, res) {
             status: false,
             content: "Expected RequestedData to be json string"
         })
-    } else if (!Array.isArray(body.urls)) {
+    } else if (!body.urls ||(body.urls && !Object.keys(body.urls).length>0)) {
         res.status(500).send({
             status: false,
-            content: "expected urls to be an array of strings"
+            content: "expected urls to be an object"
         })
     } else if (typeof body.timeout !== "number") {
         res.status(500).send({

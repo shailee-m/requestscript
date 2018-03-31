@@ -6,6 +6,7 @@ function sendRequest(url, postbody, timeout, cb) {
         method: 'POST',
         url: url,
         timeout: timeout,
+        forever:true,
         headers: {
             'content-type': 'application/json'
         },
@@ -30,7 +31,7 @@ function sendRequest(url, postbody, timeout, cb) {
 
 function init(urls, request, timeoutInMS, cb) {
 
-    if (urls.length > 0) {
+    if (Object.keys(urls).length > 0) {
         try {
             var body = JSON.parse(request);
         } catch (e) {
@@ -42,13 +43,19 @@ function init(urls, request, timeoutInMS, cb) {
             headers:{},
             response:{}
         };
-        async.each(urls, function(url, callbk) {
-            sendRequest(url, body, timeoutInMS, function(resp) {
+        async.each(Object.keys(urls), function(recipient, callbk) {
+            sendRequest(urls[recipient], body, timeoutInMS, function(resp) {
                 if (!resp.status) {
                     callbk(resp)
                 } else {
-                    responseArray.headers[url] = resp.content[url].headers
-                    responseArray.response[url] = resp.content[url].response
+                    if(!responseArray.headers.hasOwnProperty(recipient)){
+                     responseArray.headers[recipient] = []   
+                    }
+                    if(!responseArray.response.hasOwnProperty(recipient)){
+                     responseArray.response[recipient] = []   
+                    }
+                    responseArray.headers[recipient].push(resp.content[urls[recipient]].headers)
+                    responseArray.response[recipient].push(resp.content[urls[recipient]].response)
                     
                     callbk();
                 }
