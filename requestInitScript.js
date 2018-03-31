@@ -6,7 +6,7 @@ function sendRequest(url, postbody, timeout, cb) {
         method: 'POST',
         url: url,
         timeout: timeout,
-        forever:true,
+        forever: true,
         headers: {
             'content-type': 'application/json'
         },
@@ -40,23 +40,27 @@ function init(urls, request, timeoutInMS, cb) {
             return;
         }
         var responseArray = {
-            headers:{},
-            response:{}
+            headers: {},
+            response: {}
         };
         async.each(Object.keys(urls), function(recipient, callbk) {
             sendRequest(urls[recipient], body, timeoutInMS, function(resp) {
                 if (!resp.status) {
                     callbk(resp)
                 } else {
-                    if(!responseArray.headers.hasOwnProperty(recipient)){
-                     responseArray.headers[recipient] = []   
+                    if (!responseArray.headers.hasOwnProperty(recipient)) {
+                        responseArray.headers[recipient] = []
                     }
-                    if(!responseArray.response.hasOwnProperty(recipient)){
-                     responseArray.response[recipient] = []   
+                    if (!responseArray.response.hasOwnProperty(recipient)) {
+                        responseArray.response[recipient] = []
+                    }
+                    resp.content[urls[recipient]].headers["url"] = urls[recipient]
+                    if (resp.content[urls[recipient]].response !== null) {
+                        resp.content[urls[recipient]].response["url"] = urls[recipient]
                     }
                     responseArray.headers[recipient].push(resp.content[urls[recipient]].headers)
                     responseArray.response[recipient].push(resp.content[urls[recipient]].response)
-                    
+
                     callbk();
                 }
             })
@@ -85,4 +89,4 @@ function init(urls, request, timeoutInMS, cb) {
 //     console.log(JSON.stringify(argument, null, 2))
 // })
 
-module.exports=init
+module.exports = init
